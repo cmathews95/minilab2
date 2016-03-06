@@ -18,6 +18,7 @@
 #define PRINTCHAR	('1' | 0x0C00)
 #endif
 
+
 // UNCOMMENT THE NEXT LINE TO USE EXERCISE 8 CODE INSTEAD OF EXERCISE 6
 // #define __EXERCISE_8__
 // Use the following structure to choose between them:
@@ -31,15 +32,15 @@
 void
 start(void)
 {
+	// Exercise 4A Code
+	sys_priority(1);
+	sys_yield();
 	int i;
-
 	for (i = 0; i < RUNCOUNT; i++) {
 		// Write characters to the console, yielding after each one.
-		*cursorpos++ = PRINTCHAR;
+		sys_write(PRINTCHAR);
 		sys_yield();
 	}
-
-	// Yield forever.
-	while (1)
-		sys_yield();
+	// Exercise 2 Code
+	sys_exit(0);	
 }

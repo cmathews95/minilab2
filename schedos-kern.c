@@ -88,7 +88,7 @@ start(void)
 
 	// Set up hardware (schedos-x86.c)
 	segments_init();
-	interrupt_controller_init(0);
+	interrupt_controller_init(1);
 	console_clear();
 
 	// Initialize process descriptors as empty
@@ -114,6 +114,9 @@ start(void)
 
 		// Mark the process as runnable!
 		proc->p_state = P_RUNNABLE;
+
+		// Initialize Priority Number
+		proc->p_priority = 0;
 	}
 
 	// Initialize the cursor-position shared variable to point to the
@@ -123,8 +126,8 @@ start(void)
 	// Initialize the scheduling algorithm.
 	// USE THE FOLLOWING VALUES:
 	//    0 = the initial algorithm
-	//    2 = strict priority scheduling (exercise 2)
-	//   41 = p_priority algorithm (exercise 4.a)
+	//    1 = strict priority scheduling (exercise 2)
+	//    2 = p_priority algorithm (exercise 4.a)
 	//   42 = p_share algorithm (exercise 4.b)
 	//    7 = any algorithm that you may implement for exercise 7
 	scheduling_algorithm = 0;
@@ -176,14 +179,12 @@ interrupt(registers_t *reg)
 		current->p_exit_status = reg->reg_eax;
 		schedule();
 
-	case INT_SYS_USER1:
-		// 'sys_user*' are provided for your convenience, in case you
-		// want to add a system call.
-		/* Your code here (if you want). */
+	case INT_SYS_PRIORITY: // Handler for sys_priority()
+		current->p_priority = reg->reg_eax;
 		run(current);
 
-	case INT_SYS_USER2:
-		/* Your code here (if you want). */
+	case INT_SYS_WRITE: // Handler for sys_print()
+		*cursorpos++ = reg->reg_eax;
 		run(current);
 
 	case INT_CLOCK:
@@ -218,8 +219,7 @@ void
 schedule(void)
 {
 	pid_t pid = current->p_pid;
-
-	if (scheduling_algorithm == 0)
+	if (scheduling_algorithm == 0) // Round Robin
 		while (1) {
 			pid = (pid + 1) % NPROCS;
 
@@ -229,7 +229,48 @@ schedule(void)
 			if (proc_array[pid].p_state == P_RUNNABLE)
 				run(&proc_array[pid]);
 		}
+	if (scheduling_algorithm == 1) // Strict Priority
+		while (1) {
+			pid = 1;
+			while (proc_array[pid].p_state != P_RUNNABLE)
+				pid = (pid + 1) % NPROCS;
+			while (proc_array[pid].p_state == P_RUNNABLE) 
+				run(&proc_array[pid]);
+			
+		}	
+	if (scheduling_algorithm == 2) // Strict Priority Number Based Priority Scheduling
+		while (1) {
+			// Variable to iterate through Processes
+			pid_t new = 0;
+			// Set to the lowest priority value;
+			int n_priority = 4;
+			// Keep iterating until you find a process with the lowest priority #
+			// If more than one has the same priority #, it will run() the first one
+			// and schedule() will return to this function with the same pid.
+			// schedule will then increment the pid. This guarantees that you won't
+			// keep running the same process if there is more than one proc. with the 	
+			// same priority #.
+			pid = (pid + 1) % NPROCS;
 
+			// Find the currently highest priority #
+			while (new < NPROCS) {
+				if (proc_array[new].p_state == P_RUNNABLE)
+					if (proc_array[new].p_priority < n_priority)
+						n_priority = proc_array[new].p_priority;
+				new++;
+			}
+
+			/*for (new = 0; new < NPROCS; new++) {
+				if ( (proc_array[new].p_state == P_RUNNABLE) && (proc_array[new].p_priority < n_priority) )
+					n_priority = proc_array[new].p_priority;
+			}*/
+			
+			// If the current pid is Runnable and has the right priority #, run() it.
+			if (proc_array[pid].p_state == P_RUNNABLE)
+				if (proc_array[pid].p_priority <= n_priority) 
+					run(&proc_array[pid]);
+
+		}
 	// If we get here, we are running an unknown scheduling algorithm.
 	cursorpos = console_printf(cursorpos, 0x100, "\nUnknown scheduling algorithm %d\n", scheduling_algorithm);
 	while (1)

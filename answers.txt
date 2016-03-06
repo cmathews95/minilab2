@@ -1,5 +1,5 @@
-Name:
-UCLA ID:
+Name:    Christie Mathews
+UCLA ID: 104404412
 
 Collaborators:
 
@@ -8,27 +8,64 @@ Collaborators:
 Response to Exercise 1:
 
 The name of the scheduling algorithm is:
-
+Round Robin
 
 (Exercise 2 is a coding exercise)
-
+Changed	-schedos-1.c: added sys_exit(1)
+	-schedos-kern.c: add Strict Priority Scheduling Algorithm
 
 Response to Exercise 3:
 
-Average turnaround time for scheduling_algorithm 0:
-Average turnaround time for scheduling_algorithm 1:
+Average turnaround time for scheduling_algorithm 0:	1278.5 ms
+	Process | Arrival Time | Finish Time
+	   1            0           1277
+	   2            0           1278
+	   3            0           1279
+	   4            0           1280
 
-Average wait time for scheduling_algorithm 0:
-Average wait time for scheduling_algorithm 1:
+	Avg. turnaround time = (1277 + 1278 + 1279 + 1280)*(1/4) = 1278.5
+
+Average turnaround time for scheduling_algorithm 1:	800.0 ms
+	Process | Arrival Time | Finish Time
+	   1            0           320
+	   2            0           640
+	   3            0           960
+	   4            0           1280
+	Avg. turnaround time = (320 + 640 + 960 + 1280)*(1/4) = 800
+
+Average wait time for scheduling_algorithm 0:	1.5 ms
+	Process | Arrival Time | Start Time
+	   1            0           0
+	   2            0           1
+	   3            0           2
+	   4            0           3
+	Avg. wait time = (0 + 1 + 2 + 3)*(1/4) = 1.5
+
+Average wait time for scheduling_algorithm 1:	480 ms
+	Process | Arrival Time | Start Time
+	   1            0           0
+	   2            0           320
+	   3            0           640
+	   4            0           960
+	Avg. wait time = (0 + 320 + 640 + 960)*(1/4) = 480
 
 
 Exercise 4:
 
 Did you complete Exercise 4A, Exercise 4B, or both for extra credit?
-
+Exercise 4A
+Changed schedos-kern.c -Added priority scheduling based on priority level not process id
+		       -Added interrupt handler for sys_priority(), but interuppt handler
+		        has the same name: INT_SYS_USER1
+	schedos-kern.h -Added priority variable in process structure
+	schedos-app.h  -Implemented sys_priority() call to change priority #
 
 Exercise 5:
-
+	Specifically, you see: 1 2 3 4 | 1 2 3 4 | 1 2 3 4 | 1 2 3 4 | 1 2 3 | 1 2 ...
+	The first known timer interrup occured when weensyos was trying to run process 4
+	for the 5th time. I know it was interrupted because "4" was never printed; thus,
+	the process was interrupted before this step could happen. 
+	
 
 (Exercise 6 is a coding exercise)
 

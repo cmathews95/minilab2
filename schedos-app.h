@@ -11,7 +11,7 @@
 
 
 // The number of times each application should run
-#define RUNCOUNT	320
+#define RUNCOUNT	10
 
 
 /*****************************************************************************
@@ -65,12 +65,32 @@ sys_exit(int status)
 
 
 /*****************************************************************************
- * sys_priority(???)
+ * sys_priority
  *
- *   IF YOU IMPLEMENT EXERCISE 4.A, NAME YOUR SYSTEM CALL sys_priority .
- *
+ *   Set p_priority of process to status
  *****************************************************************************/
+static inline void
+sys_priority(int status)
+{
+	asm volatile("int %0\n"
+		     : : "i" (INT_SYS_PRIORITY),
+			 "a" (status)
+		     : "cc", "memory");
+}
 
+/*****************************************************************************
+ * sys_write
+ *
+ *   Print Process Number(status) to screen
+ *****************************************************************************/
+static inline void
+sys_write(int status)
+{
+	asm volatile("int %0\n"
+		     : : "i" (INT_SYS_WRITE),
+			 "a" (status)
+		     : "cc", "memory");
+}
 
 /*****************************************************************************
  * sys_share(???)
