@@ -6,16 +6,14 @@ Collaborators:
 -------------------------------------------------------------------------------
 
 Response to Exercise 1:
-
 The name of the scheduling algorithm is:
 Round Robin
 
-(Exercise 2 is a coding exercise)
+Exercise 2:
 Changed	-schedos-1.c: added sys_exit(1)
 	-schedos-kern.c: add Strict Priority Scheduling Algorithm
 
 Response to Exercise 3:
-
 Average turnaround time for scheduling_algorithm 0:	1278.5 ms
 	Process | Arrival Time | Finish Time
 	   1            0           1277
@@ -67,11 +65,25 @@ Exercise 5:
 	the process was interrupted before this step could happen. 
 	
 
-(Exercise 6 is a coding exercise)
-
+Exercise 6:
+	I implemented a new system call that atomically prints a character to the console.
+	This was easy to implement. I add a sys_call() in schedos-kern.h and a SYS_CALL in x86.h.
+	I also wrote the handler in schedos-kern.c. Finally, I made the call in schedos-1.c:
+	sys_write(PRINTCHAR). The handler in the kernel incrememnts the pointer and adds the
+	PRINTCHAR stored in the eax register.
 
 Anything else you'd like us to know:
 
 
 
 Extra credit exercises:
+Exercise 7: 
+	I implemented the Lottery Scheduling as scheduling_algorithm 5;
+	I allocated an pid_t array lottery_tickets[100*NPROCS] & used a 
+	random # generator I implemented to pick rand values from (100*NPROCS)
+	for each process and then loaded this range of values with the pid 
+	associated with this process. I made sure that each process got atleast
+	one value in this array so that it would have some possiblity of running.
+	Then in my scheduling algorithm I found a random value from (100*NPROCS)
+	and then ran the process associated with this element of lottery_tickets[]
+	and ran it if it was RUNNABLE.
