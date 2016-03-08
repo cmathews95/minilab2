@@ -11,7 +11,7 @@
 
 
 // The number of times each application should run
-#define RUNCOUNT	10
+#define RUNCOUNT	320
 
 
 /*****************************************************************************
