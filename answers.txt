@@ -57,6 +57,12 @@ Changed schedos-kern.c -Added priority scheduling based on priority level not pr
 		        has the same name: INT_SYS_USER1
 	schedos-kern.h -Added priority variable in process structure
 	schedos-app.h  -Implemented sys_priority() call to change priority #
+Exercise 4B: Did this for extra credit. But implementation isn't perfect. It's very slow
+	     and sometimes doesn't run.
+	     To implement this I added a system call and wrote an algorithm as well as
+	     added 2 values to the struct. A p_share value and a p_share_count value.
+	     basically, it was supposed to iterate through all the processes until it
+	     found one which was runnable and hadn't been run it's p_share number of times.
 
 Exercise 5:
 	Specifically, you see: 1 2 3 4 | 1 2 3 4 | 1 2 3 4 | 1 2 3 4 | 1 2 3 | 1 2 ...
@@ -73,7 +79,9 @@ Exercise 6:
 	PRINTCHAR stored in the eax register.
 
 Anything else you'd like us to know:
-
+	Wasn't sure about the defines. I implemented the scheduling algorithms with
+	the numbers in the spec. To change it just change the value in the start function
+	of kern.c. For priority scheduling, right now the values are all the same.
 
 
 Extra credit exercises:

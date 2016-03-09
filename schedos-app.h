@@ -70,11 +70,11 @@ sys_exit(int status)
  *   Set p_priority of process to status
  *****************************************************************************/
 static inline void
-sys_priority(int status)
+sys_priority(int priority)
 {
 	asm volatile("int %0\n"
 		     : : "i" (INT_SYS_PRIORITY),
-			 "a" (status)
+			 "a" (priority)
 		     : "cc", "memory");
 }
 
@@ -93,8 +93,16 @@ sys_write(int status)
 }
 
 /*****************************************************************************
- * sys_share(???)
+ * sys_share
  *
- *   IF YOU IMPLEMENT EXERCISE 4.B, NAME YOUR SYSTEM CALL sys_share .
+ *   Set p_share of process to share
  *
  *****************************************************************************/
+static inline void
+sys_share(int share)
+{
+	asm volatile("int %0\n"
+		     : : "i" (INT_SYS_SHARE),
+			 "a" (share)
+		     : "cc", "memory");
+}

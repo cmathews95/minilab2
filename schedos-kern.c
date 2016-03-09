@@ -69,7 +69,7 @@ int scheduling_algorithm;
 #define __EXERCISE_1__   0  // the initial algorithm
 #define __EXERCISE_2__   1  // strict priority scheduling (exercise 2)
 #define __EXERCISE_4A__  2  // p_priority algorithm (exercise 4.a)
-//#define __EXERCISE_4B__ 42  // p_share algorithm (exercise 4.b)
+#define __EXERCISE_4B__  3  // p_share algorithm (exercise 4.b) For E.C.
 #define __EXERCISE_7__   4  // Lottery Scheduling
 
 // LOTTERY SCHEDULING VARIABLES
@@ -82,6 +82,7 @@ int rand_num( int max )
 	next_num = next_num * 1024510653 + 12345;
 	return (unsigned int)(next_num / 73345) % max;
 }
+
 /*****************************************************************************
  * start
  *
@@ -97,7 +98,7 @@ start(void)
 
 	// Set up hardware (schedos-x86.c)
 	segments_init();
-	interrupt_controller_init(0);
+	interrupt_controller_init(1);
 	console_clear();
 
 	// Initialize process descriptors as empty
@@ -136,6 +137,10 @@ start(void)
 		// Initialize Priority Number
 		proc->p_priority = 0;
 
+		// Initialize Share Value & Count
+		proc->p_share = 0;
+		proc->p_share_count = 0;
+
 		// Initialize Number of Tickets
 		int rand = rand_num(N_TICKETS - tickets_used - 1);
 		// If last process, give rest of available tickets
@@ -158,9 +163,9 @@ start(void)
 	//    0 = round robin scheduling (original)
 	//    1 = strict priority scheduling (exercise 2)
 	//    2 = p_priority algorithm (exercise 4.a)
-	//   42 = p_share algorithm (exercise 4.b)
+	//    3 = p_share algorithm (exercise 4.b) [For Extra Credit]
 	//    4 = Lottery Scheduling
-	scheduling_algorithm = 4;
+	scheduling_algorithm = 3;
 
 	// Switch to the first process.
 	run(&proc_array[1]);
@@ -215,6 +220,10 @@ interrupt(registers_t *reg)
 
 	case INT_SYS_WRITE: // Handler for sys_print()
 		*cursorpos++ = reg->reg_eax;
+		run(current);
+	
+	case INT_SYS_SHARE:
+		current->p_share = reg->reg_eax;
 		run(current);
 
 	case INT_CLOCK:
@@ -301,7 +310,26 @@ schedule(void)
 					run(&proc_array[pid]);
 
 		}
-	if (scheduling_algorithm == 4)
+	if (scheduling_algorithm == 3) 
+		while (1) {
+			process_t *proc;
+			// Get a runnable process
+			while( (proc = &proc_array[pid])->p_state!=P_RUNNABLE )
+				pid = (pid + 1) % NPROCS;
+		
+			// If process share isn't used up yet,
+			// run it & increment the share count
+			if (proc->p_share_count < proc->p_share) {
+				proc->p_share_count = proc->p_share_count+1;
+				run(proc);
+			}else { 
+				// process share count is used up
+				proc->p_share_count = 0;
+			}
+			pid = (pid + 1) % NPROCS;
+
+		}
+	if (scheduling_algorithm == 4) //Lottery Scheduling
 		while (1) {
 			int rand = rand_num(N_TICKETS);
 			process_t *proc;
